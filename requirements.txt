@@ -4,5 +4,5 @@ numpy==1.25.2
 librosa==0.10.1
 torch==2.1.0
 transformers==4.33.2
-whisper==20230314
-moviepy==2.0.0.dev6
+openai-whisper==20230314
+moviepy==1.0.3
