@@ -1,0 +1,7 @@
+streamlit
+pytube
+moviepy
+librosa
+numpy
+transformers
+whisper
