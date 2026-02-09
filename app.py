@@ -12,6 +12,7 @@ import time
 st.set_page_config(page_title="AI YouTube Shorts Generator", layout="wide")
 st.title("AI YouTube Shorts Generator 🤖🎬")
 
+# User settings
 num_shorts = st.slider("Number of Shorts to generate:", 1, 5, 3)
 short_length = st.slider("Length of each Short (seconds):", 5, 30, 15)
 caption_fontsize = st.slider("Caption Font Size:", 20, 80, 40)
