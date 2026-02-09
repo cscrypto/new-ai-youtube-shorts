@@ -12,7 +12,6 @@ import time
 st.set_page_config(page_title="AI YouTube Shorts Generator", layout="wide")
 st.title("AI YouTube Shorts Generator 🤖🎬")
 
-# User settings
 num_shorts = st.slider("Number of Shorts to generate:", 1, 5, 3)
 short_length = st.slider("Length of each Short (seconds):", 5, 30, 15)
 caption_fontsize = st.slider("Caption Font Size:", 20, 80, 40)
@@ -79,7 +78,6 @@ if youtube_url:
         progress_text_shorts.text(f"Creating Short {idx+1}/{num_shorts}...")
         end = min(start + short_length, video_clip.duration)
         clip = video_clip.subclip(start, end)
-
         clip = clip.resize(height=1080)
 
         segment_audio = f"segment_{idx+1}.wav"
@@ -98,7 +96,6 @@ if youtube_url:
         ).set_position(('center', 'bottom')).set_duration(clip.duration)
 
         final_clip = CompositeVideoClip([clip, txt_clip])
-
         output_path = os.path.join(shorts_dir, f"short_ai_{idx+1}.mp4")
         final_clip.write_videofile(output_path, codec="libx264", audio_codec="aac", verbose=False, logger=None)
         clip.close()
