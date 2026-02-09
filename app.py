@@ -12,24 +12,20 @@ import time
 st.set_page_config(page_title="AI YouTube Shorts Generator", layout="wide")
 st.title("AI YouTube Shorts Generator 🤖🎬")
 
-# User settings
 num_shorts = st.slider("Number of Shorts to generate:", 1, 5, 3)
 short_length = st.slider("Length of each Short (seconds):", 5, 30, 15)
 caption_fontsize = st.slider("Caption Font Size:", 20, 80, 40)
 
-# Input YouTube URL
 youtube_url = st.text_input("Paste YouTube video URL:")
 
 if youtube_url:
     shorts_dir = "shorts_ai"
     os.makedirs(shorts_dir, exist_ok=True)
 
-    # Download video with User-Agent workaround
     st.info("Downloading video...")
     try:
         req = urllib.request.Request(youtube_url, headers={'User-Agent': 'Mozilla/5.0'})
         yt = YouTube(req)
-
         stream = yt.streams.filter(progressive=True, file_extension='mp4')\
                            .order_by('resolution').desc().first()
         video_path = stream.download(filename="video.mp4")
@@ -42,14 +38,12 @@ if youtube_url:
     audio_path = "audio.wav"
     video_clip.audio.write_audiofile(audio_path, codec='pcm_s16le')
 
-    # Load emotion recognition model
     st.info("Loading emotion recognition model...")
     emotion_recognizer = pipeline("audio-classification", model="superb/wav2vec2-large-superb-er")
 
     y, sr = librosa.load(audio_path)
     duration = librosa.get_duration(y=y, sr=sr)
 
-    # Analyze audio in chunks
     st.info("Analyzing audio for highlights...")
     chunk_size = 3
     scores = []
@@ -73,11 +67,9 @@ if youtube_url:
     top_segments = sorted(scores, key=lambda x: x[1], reverse=True)[:num_shorts]
     st.success(f"Top {num_shorts} highlights detected!")
 
-    # Load Whisper tiny model
     st.info("Loading Whisper model...")
     whisper_model = whisper.load_model("tiny")
 
-    # Create Shorts
     st.info("Creating Shorts...")
     progress_bar_shorts = st.progress(0)
     progress_text_shorts = st.empty()
@@ -87,16 +79,13 @@ if youtube_url:
         end = min(start + short_length, video_clip.duration)
         clip = video_clip.subclip(start, end)
 
-        # Resize for vertical Shorts
         clip = clip.resize(height=1080)
 
-        # Transcribe segment
         segment_audio = f"segment_{idx+1}.wav"
         clip.audio.write_audiofile(segment_audio, codec='pcm_s16le')
         result = whisper_model.transcribe(segment_audio)
         captions = result["text"]
 
-        # Overlay captions
         txt_clip = TextClip(
             captions,
             fontsize=caption_fontsize,
@@ -109,13 +98,11 @@ if youtube_url:
 
         final_clip = CompositeVideoClip([clip, txt_clip])
 
-        # Write final short and release memory
         output_path = os.path.join(shorts_dir, f"short_ai_{idx+1}.mp4")
         final_clip.write_videofile(output_path, codec="libx264", audio_codec="aac", verbose=False, logger=None)
         clip.close()
         final_clip.close()
 
-        # Preview & download
         st.subheader(f"Short {idx+1}")
         st.video(output_path)
         st.caption(f"Captions preview: {captions[:200]}...")
